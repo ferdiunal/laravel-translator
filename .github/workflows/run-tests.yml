@@ -53,6 +53,7 @@ jobs:
           composer require stichoza/google-translate-php
           composer require deeplcom/deepl-php
           composer require nlpcloud/nlpcloud-client
+          composer dump-autoload
 
       - name: List Installed Dependencies
         run: composer show -D
