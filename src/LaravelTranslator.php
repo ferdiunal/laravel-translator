@@ -21,7 +21,6 @@ class LaravelTranslator
      * @template T of key-of<Translators>
      *
      * @param  T  $translator
-     * @return string
      */
     public static function translate(string $translator, string $source, string $target, string $text): string
     {

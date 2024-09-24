@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Ferdiunal\LaravelTranslator\LaravelTranslator
  *
- * @param 'google'|'bing'|'deepl'|'myMemory'|'nlpCloud' $translator
+ * @param  'google'|'bing'|'deepl'|'myMemory'|'nlpCloud'  $translator
+ *
  * @method static string translate(string $translator, string $source, string $target, string $text): string
  */
 class LaravelTranslator extends Facade
