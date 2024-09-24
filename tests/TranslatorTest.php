@@ -1,11 +1,11 @@
 <?php
 
-use Ferdiunal\LaravelTranslator\Translator;
+use Ferdiunal\LaravelTranslator\LaravelTranslator;
 
 it('can translate text', function () {
     $text = 'Hello World';
 
-    $translator = new Translator;
+    $translator = new LaravelTranslator;
 
     expect($translator->translate('google', 'en', 'tr', $text))->toMatch('/^Selam Dünya/');
 
