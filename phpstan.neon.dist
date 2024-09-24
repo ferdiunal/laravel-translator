@@ -3,6 +3,10 @@ includes:
 
 parameters:
     level: 5
+    typeAliases:
+        Name: 'string'
+        NameResolver: 'callable(): string'
+        NameOrResolver: 'Name|NameResolver'
     paths:
         - src
         - config
