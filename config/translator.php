@@ -8,7 +8,6 @@ return [
     'nlpCloud' => [
         'api_key' => env('NLPCLOUD_API_KEY'),
         'languages' => [
-            'az' => 'azb_Arab',
             'az' => 'azj_Latn',
             'de' => 'deu_Latn',
             'en' => 'eng_Latn',
