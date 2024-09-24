@@ -2,7 +2,7 @@
 
 namespace Ferdiunal\LaravelTranslator\Tests;
 
-use Ferdiunal\LaravelTranslator\TranslatorServiceProvider;
+use Ferdiunal\LaravelTranslator\LaravelTranslatorServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -20,7 +20,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            TranslatorServiceProvider::class,
+            LaravelTranslatorServiceProvider::class,
         ];
     }
 
