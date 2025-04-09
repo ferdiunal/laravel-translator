@@ -21,14 +21,16 @@ class OpenAITranslator extends Translator
         $response = $client->chat()->create([
             'model' => config('translator.openai.model'),
             'messages' => [
-                ...config('translator.openai.messages'),
+                [
+                    'role' => 'system',
+                    'content' => config('translator.openai.system_message'),
+                ],
                 [
                     'role' => 'user',
-                    'content' => $text,
+                    'content' => str_replace(['{source}', '{target}', '{text}'], [$source, $target, $text], config('translator.openai.user_message')),
                 ],
             ],
         ]);
-        dd($response->choices[0]->message->content);
 
         return $response->choices[0]->message->content;
     }
