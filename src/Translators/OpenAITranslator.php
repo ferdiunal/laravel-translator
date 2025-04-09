@@ -18,6 +18,11 @@ class OpenAITranslator extends Translator
 
         $client = \OpenAI::factory()->withApiKey($apiKey)->withBaseUri(config('translator.openai.base_url'))->make();
 
+        $pattern = config('translator.pattern');
+        $sourcePattern = $pattern['source'] ?? '{source}';
+        $targetPattern = $pattern['target'] ?? '{target}';
+        $textPattern = $pattern['text'] ?? '{text}';
+
         $response = $client->chat()->create([
             'model' => config('translator.openai.model'),
             'messages' => [
@@ -27,7 +32,7 @@ class OpenAITranslator extends Translator
                 ],
                 [
                     'role' => 'user',
-                    'content' => str_replace(['{source}', '{target}', '{text}'], [$source, $target, $text], config('translator.openai.user_message')),
+                    'content' => str_replace([$sourcePattern, $targetPattern, $textPattern], [mb_strtolower($source), mb_strtolower($target), $text], config('translator.openai.user_message')),
                 ],
             ],
         ]);
