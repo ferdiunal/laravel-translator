@@ -24,9 +24,9 @@ class MyMemoryTranslator extends Translator
 
         $data = $response->json();
 
-        $status = data_get($data, 'responseStatus', 0);
+        $status = (int) data_get($data, 'responseStatus', 200);
 
-        if ($status === '403') {
+        if ($status !== 200) {
             return $text;
         }
 
