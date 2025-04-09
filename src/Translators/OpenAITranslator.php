@@ -16,28 +16,34 @@ class OpenAITranslator extends Translator
             throw new \Exception('OpenAI API key not found. Please set the key in the environment variable OPENAI_API_KEY=xxxxxxx-...');
         }
 
-        $client = \OpenAI::factory()->withApiKey($apiKey)->withBaseUri(config('translator.openai.base_url'))->make();
+        try {
+            $client = \OpenAI::factory()->withApiKey($apiKey)->withBaseUri(config('translator.openai.base_url'))->make();
 
-        $pattern = config('translator.pattern');
-        $sourcePattern = $pattern['source'] ?? '{source}';
-        $targetPattern = $pattern['target'] ?? '{target}';
-        $textPattern = $pattern['text'] ?? '{text}';
+            $pattern = config('translator.pattern');
+            $sourcePattern = $pattern['source'] ?? '{source}';
+            $targetPattern = $pattern['target'] ?? '{target}';
+            $textPattern = $pattern['text'] ?? '{text}';
 
-        $response = $client->chat()->create([
-            'model' => config('translator.openai.model'),
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => config('translator.openai.system_message'),
+            $response = $client->chat()->create([
+                'model' => config('translator.openai.model'),
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => config('translator.openai.system_message'),
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => str_replace([$sourcePattern, $targetPattern, $textPattern], [mb_strtolower($source), mb_strtolower($target), $text], config('translator.openai.user_message')),
+                    ],
                 ],
-                [
-                    'role' => 'user',
-                    'content' => str_replace([$sourcePattern, $targetPattern, $textPattern], [mb_strtolower($source), mb_strtolower($target), $text], config('translator.openai.user_message')),
-                ],
-            ],
-        ]);
+            ]);
 
-        return $response->choices[0]->message->content;
+            return $response->choices[0]->message->content;
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return $text;
     }
 
     public function icon(): string

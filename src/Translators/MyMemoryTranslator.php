@@ -10,6 +10,10 @@ class MyMemoryTranslator extends Translator
     {
         $apiUrl = 'https://api.mymemory.translated.net/get';
 
+        if (strlen($text) > 500) {
+            return $text;
+        }
+
         $query = [
             'q' => $text,
             'langpair' => sprintf('%s|%s', $source, $target),
@@ -18,7 +22,15 @@ class MyMemoryTranslator extends Translator
 
         $response = Http::get($apiUrl, $query);
 
-        return data_get($response->json(), 'responseData.translatedText', $text);
+        $data = $response->json();
+
+        $status = data_get($data, 'responseStatus', 0);
+
+        if ($status === '403') {
+            return $text;
+        }
+
+        return data_get($data, 'responseData.translatedText', $text);
     }
 
     public function icon(): string
