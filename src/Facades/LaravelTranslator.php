@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Ferdiunal\LaravelTranslator\LaravelTranslator
  *
- * @param  'google'|'bing'|'deepl'|'myMemory'|'nlpCloud'  $translator
+ * @param  'google'|'bing'|'deepl'|'myMemory'|'nlpCloud'|'openai'  $translator
+ * @param  'az'|'de'|'en'|'es'|'it'|'pt'|'tr'|'ru'  $source
+ * @param  'az'|'de'|'en'|'es'|'it'|'pt'|'tr'|'ru'  $target
+ * @param  string  $text
  *
  * @method static string translate(string $translator, string $source, string $target, string $text): string
  */

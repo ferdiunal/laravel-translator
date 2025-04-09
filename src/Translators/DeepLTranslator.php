@@ -10,7 +10,7 @@ class DeepLTranslator extends Translator
 {
     public function handle(string $source, string $target, string $text): string
     {
-        if (class_exists("\DeepL\Translator") === false) {
+        if (class_exists(\DeepL\Translator::class) === false) {
             throw new RuntimeException(
                 'The package deeplcom/deepl-php is not installed. Please run `composer require deeplcom/deepl-php`',
             );

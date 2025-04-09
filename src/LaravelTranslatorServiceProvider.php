@@ -2,7 +2,6 @@
 
 namespace Ferdiunal\LaravelTranslator;
 
-use Ferdiunal\LaravelTranslator\Commands\LaravelTranslatorCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -17,7 +16,6 @@ class LaravelTranslatorServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('laravel-translator')
-            ->hasConfigFile()
-            ->hasCommand(LaravelTranslatorCommand::class);
+            ->hasConfigFile();
     }
 }

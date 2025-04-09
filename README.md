@@ -1,84 +1,158 @@
-# This package allows you to use freely available online translation tools in your project.
+<img src="./art/logo.png" alt="Laravel Translator" />
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/ferdiunal/laravel-translator.svg?style=flat-square)](https://packagist.org/packages/ferdiunal/laravel-translator)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/ferdiunal/laravel-translator/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/ferdiunal/laravel-translator/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/ferdiunal/laravel-translator/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/ferdiunal/laravel-translator/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/ferdiunal/laravel-translator.svg?style=flat-square)](https://packagist.org/packages/ferdiunal/laravel-translator)
+# Laravel Translator
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-translator.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-translator)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+A powerful and flexible translation package for Laravel applications that supports multiple translation services including OpenAI, DeepL, Google Translate, and NLPCloud.
 
 ## Installation
-
-You can install the package via composer:
 
 ```bash
 composer require ferdiunal/laravel-translator
 ```
 
-You can publish and run the migrations with:
+## Configuration
+
+First, publish the configuration file:
 
 ```bash
-php artisan vendor:publish --tag="laravel-translator-migrations"
-php artisan migrate
+php artisan vendor:publish --provider="Ferdiunal\LaravelTranslator\LaravelTranslatorServiceProvider"
 ```
 
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="laravel-translator-config"
-```
-
-This is the contents of the published config file:
+This will create a `config/translator.php` file in your app that you can modify to set your configuration. You can configure the following settings:
 
 ```php
 return [
+    'deepl' => [
+        'api_key' => env('DEEPL_API_KEY'),
+    ],
+
+    'nlpCloud' => [
+        'api_key' => env('NLPCLOUD_API_KEY'),
+        'model' => env('NLPCLOUD_MODEL', 'nllb-200-3-3b'),
+        'languages' => [
+            'az' => 'azj_Latn',
+            'de' => 'deu_Latn',
+            'en' => 'eng_Latn',
+            'es' => 'spa_Latn',
+            'it' => 'ita_Latn',
+            'pt' => 'por_Latn',
+            'tr' => 'tur_Latn',
+            'ru' => 'rus_Cyrl',
+        ],
+    ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+        'model' => env('OPENAI_MODEL', 'gpt-4'),
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => 'You are an assistant who translates the text from English to Turkish. Just return the translated output.',
+            ],
+        ],
+    ],
 ];
 ```
 
-Optionally, you can publish the views using
+Add the following environment variables to your `.env` file based on the services you want to use:
+
+```env
+# DeepL Configuration
+DEEPL_API_KEY=your-deepl-api-key
+
+# NLPCloud Configuration
+NLPCLOUD_API_KEY=your-nlpcloud-api-key
+NLPCLOUD_MODEL=nllb-200-3-3b
+
+# OpenAI Configuration
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4
+```
+
+## Available Translation Services
+
+### Google Translate
+
+To use Google Translate, install the required package:
 
 ```bash
-php artisan vendor:publish --tag="laravel-translator-views"
+composer require stichoza/google-translate-php
+```
+
+### DeepL Translate
+
+To use DeepL Translate, install the required package and set up your API key:
+
+```bash
+composer require deeplcom/deepl-php
+```
+
+### OpenAI Translate
+
+To use OpenAI's translation capabilities, install the official PHP package:
+
+```bash
+composer require openai/openai-php
+```
+
+### NLPCloud Translate
+
+To use NLPCloud's translation service, install their client package:
+
+```bash
+composer require nlpcloud/nlpcloud-client
 ```
 
 ## Usage
 
+### Basic Usage
+
 ```php
-$laravelTranslator = new Ferdiunal\LaravelTranslator();
-echo $laravelTranslator->echoPhrase('Hello, Ferdiunal!');
+use Ferdiunal\LaravelTranslator\Facades\Translator;
+
+// Translate a single text
+$translatedText = Translator::translate('Hello World', 'tr');
+
+// Translate multiple texts
+$translations = Translator::translate(['Hello', 'World'], 'tr');
+
+// Specify source language
+$translatedText = Translator::from('en')->translate('Hello World', 'tr');
+
+// Use specific translation service
+$translatedText = Translator::using('openai')->translate('Hello World', 'tr');
+$translatedText = Translator::using('deepl')->translate('Hello World', 'tr');
+$translatedText = Translator::using('nlpcloud')->translate('Hello World', 'tr');
 ```
 
-## Testing
+### Working with Laravel Collections
 
-```bash
-composer test
+```php
+use Ferdiunal\LaravelTranslator\Facades\Translator;
+
+$collection = collect([
+    'title' => 'Hello World',
+    'description' => 'This is a description',
+]);
+
+// Translate all values in a collection
+$translatedCollection = $collection->map(function ($text) {
+    return Translator::translate($text, 'tr');
+});
 ```
 
-## Changelog
+### Blade Integration
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+```php
+{{-- Basic translation directive --}}
+{{ translate('Hello World', 'tr') }}
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [Ferdi ÜNAL](https://github.com/ferdiunal)
-- [All Contributors](../../contributors)
+{{-- Use specific translation service --}}
+{{ translate('Hello World', 'tr', 'openai') }}
+```
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE) for more information.

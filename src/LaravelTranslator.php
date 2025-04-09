@@ -11,6 +11,7 @@ use Ferdiunal\LaravelTranslator\Translators\Translator;
  *  deepl: \Ferdiunal\LaravelTranslator\Translators\DeepLTranslator,
  *  myMemory: \Ferdiunal\LaravelTranslator\Translators\MyMemoryTranslator,
  *  nlpCloud: \Ferdiunal\LaravelTranslator\Translators\NLPCloudTranslator,
+ *  openai: \Ferdiunal\LaravelTranslator\Translators\OpenAITranslator,
  * }
  */
 class LaravelTranslator

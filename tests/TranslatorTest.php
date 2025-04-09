@@ -16,4 +16,6 @@ it('can translate text', function () {
     expect($translator->translate('deepl', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
 
     expect($translator->translate('nlpCloud', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
+
+    expect($translator->translate('openai', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
 });

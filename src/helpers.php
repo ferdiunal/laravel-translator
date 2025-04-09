@@ -9,7 +9,9 @@ if (! function_exists('translator')) {
      *
      * @see \Ferdiunal\LaravelTranslator\LaravelTranslator
      *
-     * @param  'google'|'bing'|'deepl'|'myMemory'|'nlpCloud'  $translator
+     * @param  'google'|'bing'|'deepl'|'myMemory'|'nlpCloud'|'openai'  $translator
+     * @param  'az'|'de'|'en'|'es'|'it'|'pt'|'tr'|'ru'  $source
+     * @param  'az'|'de'|'en'|'es'|'it'|'pt'|'tr'|'ru'  $target
      */
     function translator(string $translator, string $source, string $target, string $text): string
     {

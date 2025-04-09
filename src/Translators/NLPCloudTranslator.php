@@ -10,7 +10,7 @@ class NLPCloudTranslator extends Translator
 {
     public function handle(string $source, string $target, string $text): string
     {
-        if (class_exists("\NLPCloud\NLPCloud") === false) {
+        if (class_exists(\NLPCloud\NLPCloud::class) === false) {
             throw new RuntimeException(
                 'The package nlpcloud/nlpcloud-client is not installed. Please run `composer require nlpcloud/nlpcloud-client`',
             );
@@ -27,14 +27,12 @@ class NLPCloudTranslator extends Translator
         }
 
         try {
-            $translator = new \NLPCloud\NLPCloud('nllb-200-3-3b', $authKey, false);
+            $translator = new \NLPCloud\NLPCloud(config('translator.nlpCloud.model'), $authKey, false);
             $translate = $translator->translation(
                 $text,
                 $sourceLang,
                 $targetLang
             );
-
-            ray($translate);
 
             return data_get($translate, 'translation_text');
         } catch (Exception|Error|RuntimeException $e) {
