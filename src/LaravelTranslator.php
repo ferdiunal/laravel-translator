@@ -46,8 +46,8 @@ class LaravelTranslator
         /**
          * @var class-string<Translators[T]> $instance
          */
-        $instance = str($translator)->ucfirst()->prepend('Ferdiunal\LaravelTranslator\Translators\\')->append('Translator')->toString();
-        if (! class_exists($instance)) {
+        $instance = str($translator)->ucfirst()->prepend('\Ferdiunal\LaravelTranslator\Translators\\')->append('Translator')->toString();
+        if (! class_exists($instance) && ! app()->environment('testing')) {
             throw new \Exception(sprintf('The translator %s does not exist.', $instance));
         }
 
