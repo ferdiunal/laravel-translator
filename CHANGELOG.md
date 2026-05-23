@@ -4,6 +4,8 @@ All notable changes to `laravel-translator` will be documented in this file.
 
 ## Unreleased
 
+- Added Laravel 13 support across Composer constraints, Testbench, Pest, documentation, and CI coverage.
+
 ## v1.2.1 - 2026-05-23
 
 - Added an English default README and moved Turkish documentation to `README.TR.md`.

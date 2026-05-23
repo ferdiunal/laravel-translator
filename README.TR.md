@@ -17,8 +17,8 @@ Desteklenen provider’lar:
 
 ## Gereksinimler
 
-- PHP `^8.2` — PHP 8.4+ ve 8.5 CI matrix ile doğrulanır.
-- Laravel 10, 11 veya 12.
+- PHP `^8.2` — Laravel 13 kombinasyonları Laravel framework constraint’leri üzerinden PHP `^8.3` ister.
+- Laravel 10, 11, 12 veya 13.
 
 ## Kurulum
 
@@ -258,7 +258,7 @@ Tek komut:
 composer ci
 ```
 
-CI matrix PHP 8.2/8.3/8.4/8.5 ve Laravel 10/11/12 kombinasyonlarını kapsayacak şekilde tasarlanmıştır.
+CI matrix PHP 8.2/8.3/8.4/8.5 ve Laravel 10/11/12/13 kombinasyonlarını kapsayacak şekilde tasarlanmıştır.
 
 ## License
 

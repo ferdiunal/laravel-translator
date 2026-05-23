@@ -17,8 +17,8 @@ Supported providers:
 
 ## Requirements
 
-- PHP `^8.2` — PHP 8.4+ and 8.5 are validated in the CI matrix.
-- Laravel 10, 11, or 12.
+- PHP `^8.2` — Laravel 13 combinations require PHP `^8.3` through Laravel's framework constraints.
+- Laravel 10, 11, 12, or 13.
 
 ## Installation
 
@@ -258,7 +258,7 @@ Single command:
 composer ci
 ```
 
-The CI matrix is designed to cover PHP 8.2/8.3/8.4/8.5 and Laravel 10/11/12 combinations.
+The CI matrix is designed to cover PHP 8.2/8.3/8.4/8.5 and Laravel 10/11/12/13 combinations.
 
 ## License
 
