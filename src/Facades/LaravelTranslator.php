@@ -1,23 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ferdiunal\LaravelTranslator\Facades;
 
+use Ferdiunal\LaravelTranslator\Manager\TranslatorManager;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Ferdiunal\LaravelTranslator\LaravelTranslator
+ * @see TranslatorManager
  *
- * @param  'google'|'bing'|'deepl'|'myMemory'|'nlpCloud'|'openai'  $translator
- * @param  'az'|'de'|'en'|'es'|'it'|'pt'|'tr'|'ru'  $source
- * @param  'az'|'de'|'en'|'es'|'it'|'pt'|'tr'|'ru'  $target
- * @param  string  $text
- *
- * @method static string translate(string $translator, string $source, string $target, string $text): string
+ * @method static string translate(string $translator, string $source, string $target, string $text)
+ * @method static \Ferdiunal\LaravelTranslator\Translators\Translator translator(string $translator)
+ * @method static array providers()
  */
 class LaravelTranslator extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Ferdiunal\LaravelTranslator\LaravelTranslator::class;
+        return TranslatorManager::class;
     }
 }

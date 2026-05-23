@@ -1,36 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ferdiunal\LaravelTranslator\Translators;
 
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
 class MyMemoryTranslator extends Translator
 {
+    private const API_URL = 'https://api.mymemory.translated.net/get';
+
     public function handle(string $source, string $target, string $text): string
     {
-        $apiUrl = 'https://api.mymemory.translated.net/get';
-
-        if (strlen($text) > 500) {
+        if (mb_strlen($text) > 500) {
             return $text;
         }
 
-        $query = [
+        $response = $this->http()->get(self::API_URL, [
             'q' => $text,
             'langpair' => sprintf('%s|%s', $source, $target),
             'mt' => '1',
-        ];
+        ]);
 
-        $response = Http::get($apiUrl, $query);
+        if (! $response->successful()) {
+            return $text;
+        }
 
         $data = $response->json();
-
         $status = (int) data_get($data, 'responseStatus', 200);
 
         if ($status !== 200) {
             return $text;
         }
 
-        return data_get($data, 'responseData.translatedText', $text);
+        $translated = data_get($data, 'responseData.translatedText');
+
+        return is_string($translated) && $translated !== '' ? $translated : $text;
     }
 
     public function icon(): string
@@ -48,6 +54,7 @@ class MyMemoryTranslator extends Translator
         return 'MyMemory';
     }
 
+    /** @return array{icon: string, key: string, title: string} */
     public function toArray(): array
     {
         return [
@@ -55,5 +62,15 @@ class MyMemoryTranslator extends Translator
             'key' => $this->key(),
             'title' => $this->title(),
         ];
+    }
+
+    private function http(): PendingRequest
+    {
+        return Http::timeout((int) config('translator.http.timeout', 10))
+            ->connectTimeout((int) config('translator.http.connect_timeout', 5))
+            ->retry(
+                (int) config('translator.http.retry_times', 1),
+                (int) config('translator.http.retry_sleep_ms', 100),
+            );
     }
 }

@@ -1,21 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
+use Ferdiunal\LaravelTranslator\Facades\LaravelTranslator as LaravelTranslatorFacade;
 use Ferdiunal\LaravelTranslator\LaravelTranslator;
+use Ferdiunal\LaravelTranslator\Tests\Fixtures\EchoTranslator;
 
-it('can translate text', function () {
-    $text = 'Hello World';
+it('translates text through the static wrapper, facade, and helper without external APIs', function (): void {
+    config()->set('translator.providers.echo', [
+        'driver' => EchoTranslator::class,
+        'enabled' => true,
+        'title' => 'Echo',
+        'icon' => 'echo.svg',
+    ]);
 
-    $translator = new LaravelTranslator;
-
-    expect($translator->translate('google', 'en', 'tr', $text))->toMatch('/^Selam Dünya/');
-
-    expect($translator->translate('bing', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
-
-    expect($translator->translate('myMemory', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
-
-    expect($translator->translate('deepl', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
-
-    expect($translator->translate('nlpCloud', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
-
-    expect($translator->translate('openai', 'en', 'tr', $text))->toMatch('/^Merhaba Dünya/');
+    expect(LaravelTranslator::translate('echo', 'en', 'tr', 'Hello'))->toBe('[en>tr] Hello')
+        ->and(LaravelTranslatorFacade::translate('echo', 'tr', 'en', 'Merhaba'))->toBe('[tr>en] Merhaba')
+        ->and(translator('echo', 'en', 'de', 'Hi'))->toBe('[en>de] Hi');
 });

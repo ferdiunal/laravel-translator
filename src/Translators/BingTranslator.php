@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ferdiunal\LaravelTranslator\Translators;
 
 use Ferdiunal\LaravelTranslator\Lib\BingTranslatorTool;
@@ -8,12 +10,10 @@ class BingTranslator extends Translator
 {
     public function handle(string $source, string $target, string $text): string
     {
-        $translater = new BingTranslatorTool;
-
-        return $translater->translate(
+        return (new BingTranslatorTool)->translate(
             text: $text,
             target: $target,
-            source: $source
+            source: $source,
         );
     }
 
@@ -32,6 +32,7 @@ class BingTranslator extends Translator
         return 'Bing';
     }
 
+    /** @return array{icon: string, key: string, title: string} */
     public function toArray(): array
     {
         return [

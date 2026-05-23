@@ -1,39 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ferdiunal\LaravelTranslator\Translators;
 
-use Error;
-use Exception;
-use RuntimeException;
+use DeepL\Translator as DeepLClient;
+use Ferdiunal\LaravelTranslator\Exceptions\MissingCredentialException;
+use Throwable;
 
 class DeepLTranslator extends Translator
 {
     public function handle(string $source, string $target, string $text): string
     {
-        if (class_exists(\DeepL\Translator::class) === false) {
-            throw new RuntimeException(
-                'The package deeplcom/deepl-php is not installed. Please run `composer require deeplcom/deepl-php`',
-            );
+        if (! class_exists(DeepLClient::class)) {
+            throw new MissingCredentialException('The package deeplcom/deepl-php is not installed. Please run `composer require deeplcom/deepl-php`.');
         }
 
         $authKey = config('translator.deepl.api_key');
 
-        if ($authKey === null) {
-            throw new RuntimeException(
-                'The DeepL API key is not set. Please set the key in the environment variable DEEPL_API_KEY=xxxxxxx-...',
-            );
+        if (! is_string($authKey) || $authKey === '') {
+            throw MissingCredentialException::forProvider('DeepL', 'DEEPL_API_KEY');
         }
 
         try {
-            $translator = new \DeepL\Translator($authKey);
-            $translate = $translator->translateText(
-                $text,
-                $source,
-                $target
-            );
+            $translator = new DeepLClient($authKey);
+            $translation = $translator->translateText($text, $source, $target);
 
-            return $translate->text;
-        } catch (Exception|Error|RuntimeException $e) {
+            return $translation->text;
+        } catch (Throwable $throwable) {
+            report($throwable);
+
+            if ((bool) config('translator.fallback.throw', false)) {
+                throw $throwable;
+            }
+
             return $text;
         }
     }
@@ -53,6 +53,7 @@ class DeepLTranslator extends Translator
         return 'DeepL';
     }
 
+    /** @return array{icon: string, key: string, title: string} */
     public function toArray(): array
     {
         return [

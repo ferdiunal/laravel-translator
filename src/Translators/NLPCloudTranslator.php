@@ -1,42 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ferdiunal\LaravelTranslator\Translators;
 
-use Error;
-use Exception;
+use Ferdiunal\LaravelTranslator\Exceptions\MissingCredentialException;
+use NLPCloud\NLPCloud;
 use RuntimeException;
+use Throwable;
 
 class NLPCloudTranslator extends Translator
 {
     public function handle(string $source, string $target, string $text): string
     {
-        if (class_exists(\NLPCloud\NLPCloud::class) === false) {
-            throw new RuntimeException(
-                'The package nlpcloud/nlpcloud-client is not installed. Please run `composer require nlpcloud/nlpcloud-client`',
-            );
+        if (! class_exists(NLPCloud::class)) {
+            throw new RuntimeException('The package nlpcloud/nlpcloud-client is not installed. Please run `composer require nlpcloud/nlpcloud-client`.');
         }
 
-        $authKey = config('translator.nlpCloud.api_key');
-        $sourceLang = config("translator.nlpCloud.languages.{$source}");
-        $targetLang = config("translator.nlpCloud.languages.{$target}");
+        $authKey = $this->configString('api_key') ?? $this->legacyConfigString('api_key');
+        $sourceLang = $this->languageFor($source);
+        $targetLang = $this->languageFor($target);
 
         if ($authKey === null) {
-            throw new RuntimeException(
-                'The NLPCLoud API key is not set. Please set the key in the environment variable NLPCLOUD_API_KEY=xxxxxxx...',
-            );
+            throw MissingCredentialException::forProvider('NLPCloud', 'NLPCLOUD_API_KEY');
+        }
+
+        if ($sourceLang === null || $targetLang === null) {
+            return $text;
         }
 
         try {
-            $translator = new \NLPCloud\NLPCloud(config('translator.nlpCloud.model'), $authKey, false);
-            $translate = $translator->translation(
-                $text,
-                $sourceLang,
-                $targetLang
-            );
+            $model = $this->configString('model') ?? $this->legacyConfigString('model') ?? 'nllb-200-3-3b';
+            $translator = new NLPCloud($model, $authKey, false);
+            $translation = $translator->translation($text, $sourceLang, $targetLang);
+            $translated = data_get($translation, 'translation_text');
 
-            return data_get($translate, 'translation_text');
-        } catch (Exception|Error|RuntimeException $e) {
-            ray($e);
+            return is_string($translated) && $translated !== '' ? $translated : $text;
+        } catch (Throwable $throwable) {
+            report($throwable);
+
+            if ((bool) config('translator.fallback.throw', false)) {
+                throw $throwable;
+            }
 
             return $text;
         }
@@ -57,6 +62,7 @@ class NLPCloudTranslator extends Translator
         return 'NLP Cloud';
     }
 
+    /** @return array{icon: string, key: string, title: string} */
     public function toArray(): array
     {
         return [
@@ -64,5 +70,26 @@ class NLPCloudTranslator extends Translator
             'key' => $this->key(),
             'title' => $this->title(),
         ];
+    }
+
+    private function languageFor(string $language): ?string
+    {
+        $value = config("translator.nlpcloud.languages.{$language}") ?? config("translator.nlpCloud.languages.{$language}");
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    private function configString(string $key): ?string
+    {
+        $value = config("translator.nlpcloud.{$key}");
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    private function legacyConfigString(string $key): ?string
+    {
+        $value = config("translator.nlpCloud.{$key}");
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 }
