@@ -2,37 +2,37 @@
 
 # Laravel Translator
 
-English | [Türkçe](README.TR.md)
+[English](README.md) | Türkçe
 
-A type-safe and extensible translation package for Laravel applications with multiple provider support.
+Laravel uygulamaları için çoklu provider destekli, type-safe ve genişletilebilir çeviri paketi.
 
-Supported providers:
+Desteklenen provider’lar:
 
 - Google Translate
 - Bing Translator
 - DeepL
 - MyMemory
 - NLP Cloud
-- OpenAI / OpenAI-compatible custom base URLs
+- OpenAI / OpenAI uyumlu custom base URL’ler
 
-## Requirements
+## Gereksinimler
 
-- PHP `^8.2` — PHP 8.4+ and 8.5 are validated in the CI matrix.
-- Laravel 10, 11, or 12.
+- PHP `^8.2` — PHP 8.4+ ve 8.5 CI matrix ile doğrulanır.
+- Laravel 10, 11 veya 12.
 
-## Installation
+## Kurulum
 
 ```bash
 composer require ferdiunal/laravel-translator
 ```
 
-Publish the configuration file:
+Config dosyasını yayınla:
 
 ```bash
 php artisan vendor:publish --provider="Ferdiunal\LaravelTranslator\LaravelTranslatorServiceProvider"
 ```
 
-## Basic usage
+## Temel kullanım
 
 ```php
 use Ferdiunal\LaravelTranslator\LaravelTranslator;
@@ -59,20 +59,20 @@ Helper:
 $translated = translator('deepl', 'en', 'tr', 'Hello World');
 ```
 
-Resolving a provider instance:
+Provider instance çözmek:
 
 ```php
 $provider = LaravelTranslator::translator('mymemory');
 $translated = $provider->run('en', 'tr', 'Hello :name');
 ```
 
-`run()` preserves Laravel placeholders. Placeholders such as `:name` and `:count` are not translated, and characters such as `@` inside email addresses are not corrupted.
+`run()` Laravel placeholder’larını korur. Örneğin `:name`, `:count` gibi placeholder’lar çevrilmez; e-posta içindeki `@` gibi karakterler bozulmaz.
 
-## Provider keys and aliases
+## Provider anahtarları ve alias’lar
 
-Canonical provider keys:
+Canonical provider key’leri:
 
-| Provider | Canonical key | Legacy/compatible alias |
+| Provider | Canonical key | Eski/uyumlu alias |
 | --- | --- | --- |
 | Google | `google` | - |
 | Bing | `bing` | - |
@@ -81,17 +81,17 @@ Canonical provider keys:
 | NLP Cloud | `nlpcloud` | `nlpCloud` |
 | OpenAI | `openai` | - |
 
-Acronym and case differences are no longer resolved through runtime class-name guessing. Provider resolution uses an explicit registry, so names such as `OpenAI`, `DeepL`, `NLPCloud`, and `MyMemory` are not fragile on Linux or PSR-4 case-sensitive environments.
+Acronym/case farkları artık runtime class-name tahminiyle çözülmez. Provider çözümleme explicit registry üzerinden yapılır; bu yüzden Linux/PSR-4 case-sensitive ortamlarda `OpenAI`, `DeepL`, `NLPCloud`, `MyMemory` gibi isimler kırılgan değildir.
 
-Get the list of active providers:
+Aktif provider listesini almak:
 
 ```php
 $providers = LaravelTranslator::providers();
 ```
 
-## Configuration
+## Config
 
-The published `config/translator.php` file contains these fields in summary:
+Yayınlanan `config/translator.php` özetle şu alanları içerir:
 
 ```php
 return [
@@ -107,7 +107,7 @@ return [
     ],
 
     'providers' => [
-        // Example for disabling a built-in provider:
+        // Built-in provider disable örneği:
         // 'openai' => ['enabled' => false],
     ],
 
@@ -128,7 +128,7 @@ return [
 ];
 ```
 
-The package does not ship a default secret or API key. API keys must be provided through `.env`.
+Paket default olarak secret/API key göndermez. API key’leri `.env` üzerinden verilmelidir.
 
 ```env
 DEEPL_API_KEY=your-deepl-api-key
@@ -139,9 +139,9 @@ OPENAI_BASE_URL=https://api.openai.com/v1
 OPENAI_MODEL=gpt-4o-mini
 ```
 
-## Adding a custom provider
+## Custom provider ekleme
 
-Custom provider classes must extend `Ferdiunal\LaravelTranslator\Translators\Translator`.
+Custom provider sınıfı `Ferdiunal\LaravelTranslator\Translators\Translator` sınıfını extend etmelidir.
 
 ```php
 <?php
@@ -200,15 +200,15 @@ final class AcmeTranslator extends Translator
 ],
 ```
 
-Usage:
+Kullanım:
 
 ```php
 $translated = LaravelTranslator::translate('acme', 'en', 'tr', 'Hello');
 ```
 
-## Disabling or overriding providers
+## Provider disable/override
 
-Disable a built-in provider:
+Built-in provider’ı kapatmak:
 
 ```php
 'providers' => [
@@ -218,7 +218,7 @@ Disable a built-in provider:
 ],
 ```
 
-Override built-in provider metadata or driver:
+Built-in provider metadata veya driver override etmek:
 
 ```php
 'providers' => [
@@ -231,11 +231,11 @@ Override built-in provider metadata or driver:
 ],
 ```
 
-Invalid custom provider classes throw `InvalidTranslatorProviderException`; unknown or disabled providers throw `UnsupportedTranslatorException`.
+Geçersiz custom provider sınıfı `InvalidTranslatorProviderException`, bilinmeyen/disabled provider ise `UnsupportedTranslatorException` fırlatır.
 
-## Using OpenAI-compatible endpoints
+## OpenAI uyumlu endpoint kullanımı
 
-The OpenAI provider supports OpenAI-compatible endpoints through `OPENAI_BASE_URL`:
+OpenAI provider, `OPENAI_BASE_URL` ile OpenAI-compatible endpoint’leri destekler:
 
 ```env
 OPENAI_API_KEY=your-api-key
@@ -243,7 +243,7 @@ OPENAI_BASE_URL=https://openrouter.ai/api/v1
 OPENAI_MODEL=openai/gpt-4o-mini
 ```
 
-## Tests and quality gates
+## Test ve kalite gate’leri
 
 ```bash
 composer validate --strict
@@ -252,13 +252,13 @@ composer analyse
 composer test -- --ci
 ```
 
-Single command:
+Tek komut:
 
 ```bash
 composer ci
 ```
 
-The CI matrix is designed to cover PHP 8.2/8.3/8.4/8.5 and Laravel 10/11/12 combinations.
+CI matrix PHP 8.2/8.3/8.4/8.5 ve Laravel 10/11/12 kombinasyonlarını kapsayacak şekilde tasarlanmıştır.
 
 ## License
 
