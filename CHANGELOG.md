@@ -4,6 +4,8 @@ All notable changes to `laravel-translator` will be documented in this file.
 
 ## Unreleased
 
+## v1.2.0 - 2026-05-23
+
 - Added explicit provider registry and manager for deterministic provider resolution.
 - Added canonical provider keys with backward-compatible aliases for `myMemory` and `nlpCloud`.
 - Added custom provider registration, disable, override, and contract validation support.
