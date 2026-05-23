@@ -4,6 +4,10 @@ All notable changes to `laravel-translator` will be documented in this file.
 
 ## Unreleased
 
+## v1.2.1 - 2026-05-23
+
+- Added an English default README and moved Turkish documentation to `README.TR.md`.
+
 ## v1.2.0 - 2026-05-23
 
 - Added explicit provider registry and manager for deterministic provider resolution.
