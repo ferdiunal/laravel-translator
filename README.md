@@ -2,156 +2,261 @@
 
 # Laravel Translator
 
-A powerful and flexible translation package for Laravel applications that supports multiple translation services including OpenAI, DeepL, Google Translate, and NLPCloud.
+Laravel uygulamaları için çoklu provider destekli, type-safe ve genişletilebilir çeviri paketi.
 
-## Installation
+Desteklenen provider’lar:
+
+- Google Translate
+- Bing Translator
+- DeepL
+- MyMemory
+- NLP Cloud
+- OpenAI / OpenAI uyumlu custom base URL’ler
+
+## Gereksinimler
+
+- PHP `^8.2` — PHP 8.4+ ve 8.5 CI matrix ile doğrulanır.
+- Laravel 10, 11 veya 12.
+
+## Kurulum
 
 ```bash
 composer require ferdiunal/laravel-translator
 ```
 
-## Configuration
-
-First, publish the configuration file:
+Config dosyasını yayınla:
 
 ```bash
 php artisan vendor:publish --provider="Ferdiunal\LaravelTranslator\LaravelTranslatorServiceProvider"
 ```
 
-This will create a `config/translator.php` file in your app that you can modify to set your configuration. You can configure the following settings:
+## Temel kullanım
+
+```php
+use Ferdiunal\LaravelTranslator\LaravelTranslator;
+
+$translated = LaravelTranslator::translate(
+    translator: 'google',
+    source: 'en',
+    target: 'tr',
+    text: 'Hello World',
+);
+```
+
+Facade:
+
+```php
+use Ferdiunal\LaravelTranslator\Facades\LaravelTranslator;
+
+$translated = LaravelTranslator::translate('openai', 'en', 'tr', 'Hello World');
+```
+
+Helper:
+
+```php
+$translated = translator('deepl', 'en', 'tr', 'Hello World');
+```
+
+Provider instance çözmek:
+
+```php
+$provider = LaravelTranslator::translator('mymemory');
+$translated = $provider->run('en', 'tr', 'Hello :name');
+```
+
+`run()` Laravel placeholder’larını korur. Örneğin `:name`, `:count` gibi placeholder’lar çevrilmez; e-posta içindeki `@` gibi karakterler bozulmaz.
+
+## Provider anahtarları ve alias’lar
+
+Canonical provider key’leri:
+
+| Provider | Canonical key | Eski/uyumlu alias |
+| --- | --- | --- |
+| Google | `google` | - |
+| Bing | `bing` | - |
+| DeepL | `deepl` | - |
+| MyMemory | `mymemory` | `myMemory` |
+| NLP Cloud | `nlpcloud` | `nlpCloud` |
+| OpenAI | `openai` | - |
+
+Acronym/case farkları artık runtime class-name tahminiyle çözülmez. Provider çözümleme explicit registry üzerinden yapılır; bu yüzden Linux/PSR-4 case-sensitive ortamlarda `OpenAI`, `DeepL`, `NLPCloud`, `MyMemory` gibi isimler kırılgan değildir.
+
+Aktif provider listesini almak:
+
+```php
+$providers = LaravelTranslator::providers();
+```
+
+## Config
+
+Yayınlanan `config/translator.php` özetle şu alanları içerir:
 
 ```php
 return [
+    'fallback' => [
+        'throw' => env('TRANSLATOR_THROW_ON_FAILURE', false),
+    ],
+
+    'http' => [
+        'timeout' => (int) env('TRANSLATOR_HTTP_TIMEOUT', 10),
+        'connect_timeout' => (int) env('TRANSLATOR_HTTP_CONNECT_TIMEOUT', 5),
+        'retry_times' => (int) env('TRANSLATOR_HTTP_RETRY_TIMES', 1),
+        'retry_sleep_ms' => (int) env('TRANSLATOR_HTTP_RETRY_SLEEP_MS', 100),
+    ],
+
+    'providers' => [
+        // Built-in provider disable örneği:
+        // 'openai' => ['enabled' => false],
+    ],
+
     'deepl' => [
         'api_key' => env('DEEPL_API_KEY'),
     ],
 
-    'nlpCloud' => [
+    'nlpcloud' => [
         'api_key' => env('NLPCLOUD_API_KEY'),
         'model' => env('NLPCLOUD_MODEL', 'nllb-200-3-3b'),
-        'languages' => [
-            'az' => 'azj_Latn',
-            'de' => 'deu_Latn',
-            'en' => 'eng_Latn',
-            'es' => 'spa_Latn',
-            'it' => 'ita_Latn',
-            'pt' => 'por_Latn',
-            'tr' => 'tur_Latn',
-            'ru' => 'rus_Cyrl',
-        ],
     ],
 
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
         'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-        'model' => env('OPENAI_MODEL', 'gpt-4'),
-        'messages' => [
-            [
-                'role' => 'system',
-                'content' => 'You are an assistant who translates the text from English to Turkish. Just return the translated output.',
-            ],
-        ],
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
     ],
 ];
 ```
 
-Add the following environment variables to your `.env` file based on the services you want to use:
+Paket default olarak secret/API key göndermez. API key’leri `.env` üzerinden verilmelidir.
 
 ```env
-# DeepL Configuration
 DEEPL_API_KEY=your-deepl-api-key
-
-# NLPCloud Configuration
 NLPCLOUD_API_KEY=your-nlpcloud-api-key
 NLPCLOUD_MODEL=nllb-200-3-3b
-
-# OpenAI Configuration
 OPENAI_API_KEY=your-openai-api-key
 OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4
+OPENAI_MODEL=gpt-4o-mini
 ```
 
-## Available Translation Services
+## Custom provider ekleme
 
-### Google Translate
-
-To use Google Translate, install the required package:
-
-```bash
-composer require stichoza/google-translate-php
-```
-
-### DeepL Translate
-
-To use DeepL Translate, install the required package and set up your API key:
-
-```bash
-composer require deeplcom/deepl-php
-```
-
-### OpenAI Translate
-
-To use OpenAI's translation capabilities, install the official PHP package:
-
-```bash
-composer require openai/openai-php
-```
-
-### NLPCloud Translate
-
-To use NLPCloud's translation service, install their client package:
-
-```bash
-composer require nlpcloud/nlpcloud-client
-```
-
-## Usage
-
-### Basic Usage
+Custom provider sınıfı `Ferdiunal\LaravelTranslator\Translators\Translator` sınıfını extend etmelidir.
 
 ```php
-use Ferdiunal\LaravelTranslator\Facades\Translator;
+<?php
 
-// Translate a single text
-$translatedText = Translator::translate('Hello World', 'tr');
+declare(strict_types=1);
 
-// Translate multiple texts
-$translations = Translator::translate(['Hello', 'World'], 'tr');
+namespace App\Translators;
 
-// Specify source language
-$translatedText = Translator::from('en')->translate('Hello World', 'tr');
+use Ferdiunal\LaravelTranslator\Translators\Translator;
 
-// Use specific translation service
-$translatedText = Translator::using('openai')->translate('Hello World', 'tr');
-$translatedText = Translator::using('deepl')->translate('Hello World', 'tr');
-$translatedText = Translator::using('nlpcloud')->translate('Hello World', 'tr');
+final class AcmeTranslator extends Translator
+{
+    public function handle(string $source, string $target, string $text): string
+    {
+        return "[$source>$target] $text";
+    }
+
+    public function icon(): string
+    {
+        return 'https://example.com/icon.svg';
+    }
+
+    public function key(): string
+    {
+        return 'acme';
+    }
+
+    public function title(): string
+    {
+        return 'Acme';
+    }
+
+    /** @return array{icon: string, key: string, title: string} */
+    public function toArray(): array
+    {
+        return [
+            'icon' => $this->icon(),
+            'key' => $this->key(),
+            'title' => $this->title(),
+        ];
+    }
+}
 ```
 
-### Working with Laravel Collections
+`config/translator.php`:
 
 ```php
-use Ferdiunal\LaravelTranslator\Facades\Translator;
-
-$collection = collect([
-    'title' => 'Hello World',
-    'description' => 'This is a description',
-]);
-
-// Translate all values in a collection
-$translatedCollection = $collection->map(function ($text) {
-    return Translator::translate($text, 'tr');
-});
+'providers' => [
+    'acme' => [
+        'driver' => App\Translators\AcmeTranslator::class,
+        'enabled' => true,
+        'title' => 'Acme',
+        'icon' => 'https://example.com/icon.svg',
+        'aliases' => ['legacyAcme'],
+    ],
+],
 ```
 
-### Blade Integration
+Kullanım:
 
 ```php
-{{-- Basic translation directive --}}
-{{ translate('Hello World', 'tr') }}
-
-{{-- Use specific translation service --}}
-{{ translate('Hello World', 'tr', 'openai') }}
+$translated = LaravelTranslator::translate('acme', 'en', 'tr', 'Hello');
 ```
+
+## Provider disable/override
+
+Built-in provider’ı kapatmak:
+
+```php
+'providers' => [
+    'openai' => [
+        'enabled' => false,
+    ],
+],
+```
+
+Built-in provider metadata veya driver override etmek:
+
+```php
+'providers' => [
+    'openai' => [
+        'driver' => App\Translators\CustomOpenAITranslator::class,
+        'title' => 'Company OpenAI Proxy',
+        'default_base_url' => 'https://ai.example.com/v1',
+        'enabled' => true,
+    ],
+],
+```
+
+Geçersiz custom provider sınıfı `InvalidTranslatorProviderException`, bilinmeyen/disabled provider ise `UnsupportedTranslatorException` fırlatır.
+
+## OpenAI uyumlu endpoint kullanımı
+
+OpenAI provider, `OPENAI_BASE_URL` ile OpenAI-compatible endpoint’leri destekler:
+
+```env
+OPENAI_API_KEY=your-api-key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=openai/gpt-4o-mini
+```
+
+## Test ve kalite gate’leri
+
+```bash
+composer validate --strict
+composer format:check
+composer analyse
+composer test -- --ci
+```
+
+Tek komut:
+
+```bash
+composer ci
+```
+
+CI matrix PHP 8.2/8.3/8.4/8.5 ve Laravel 10/11/12 kombinasyonlarını kapsayacak şekilde tasarlanmıştır.
 
 ## License
 

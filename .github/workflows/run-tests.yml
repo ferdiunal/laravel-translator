@@ -8,27 +8,91 @@ on:
       - 'phpunit.xml.dist'
       - 'composer.json'
       - 'composer.lock'
+  pull_request:
+    paths:
+      - '**.php'
+      - '.github/workflows/run-tests.yml'
+      - 'phpunit.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
+
+permissions:
+  contents: read
 
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        php: [8.3, 8.2]
-        laravel: [11.*, 10.*]
-        stability: [prefer-lowest, prefer-stable]
         include:
-          - laravel: 11.*
-            testbench: 9.*
-            carbon: ^2.63
-          - laravel: 10.*
-            testbench: 8.*
-            carbon: ^2.63
+          - os: ubuntu-latest
+            php: '8.2'
+            laravel: '10.*'
+            testbench: '8.*'
+            pest: '^2.34'
+            pest_laravel: '^2.3'
+            pest_arch: '^2.7'
+            stability: prefer-lowest
+          - os: ubuntu-latest
+            php: '8.2'
+            laravel: '10.*'
+            testbench: '8.*'
+            pest: '^2.34'
+            pest_laravel: '^2.3'
+            pest_arch: '^2.7'
+            stability: prefer-stable
+          - os: ubuntu-latest
+            php: '8.3'
+            laravel: '11.*'
+            testbench: '9.*'
+            pest: '^3.0'
+            pest_laravel: '^3.0'
+            pest_arch: '^3.0'
+            stability: prefer-lowest
+          - os: windows-latest
+            php: '8.3'
+            laravel: '11.*'
+            testbench: '9.*'
+            pest: '^3.0'
+            pest_laravel: '^3.0'
+            pest_arch: '^3.0'
+            stability: prefer-stable
+          - os: ubuntu-latest
+            php: '8.4'
+            laravel: '11.*'
+            testbench: '9.*'
+            pest: '^3.0'
+            pest_laravel: '^3.0'
+            pest_arch: '^3.0'
+            stability: prefer-stable
+          - os: ubuntu-latest
+            php: '8.4'
+            laravel: '12.*'
+            testbench: '10.*'
+            pest: '^4.0'
+            pest_laravel: '^4.0'
+            pest_arch: '^4.0'
+            stability: prefer-stable
+          - os: ubuntu-latest
+            php: '8.5'
+            laravel: '12.*'
+            testbench: '10.*'
+            pest: '^4.0'
+            pest_laravel: '^4.0'
+            pest_arch: '^4.0'
+            stability: prefer-stable
+          - os: windows-latest
+            php: '8.4'
+            laravel: '12.*'
+            testbench: '10.*'
+            pest: '^4.0'
+            pest_laravel: '^4.0'
+            pest_arch: '^4.0'
+            stability: prefer-stable
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} / ${{ matrix.stability }} / ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -48,14 +112,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.os == 'windows-latest' && '^^^' || '' }}${{ matrix.carbon }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
-          composer require stichoza/google-translate-php
-          composer require deeplcom/deepl-php
-          composer require nlpcloud/nlpcloud-client
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "pestphp/pest:${{ matrix.pest }}" "pestphp/pest-plugin-laravel:${{ matrix.pest_laravel }}" "pestphp/pest-plugin-arch:${{ matrix.pest_arch }}" --no-interaction --no-update
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction -W
           composer dump-autoload
 
-      - name: List Installed Dependencies
+      - name: List installed dependencies
         run: composer show -D
 
       - name: Execute tests
